@@ -1,17 +1,15 @@
 'use strict';
 /* global $ */
 $(document).ready(function(){
-  fetchCategory();
-  fetchSessionToken();
+  getCategory();
   render();
-  //retrieveAPIData()
   handleStartQuiz();
   handleEvaluateAnswer();
   continueFromResult ();
   retakeQuiz();
 });
 
-//API generating URLs
+//API generating constants
 const baseURL = 'https://opentdb.com';
 const questionPath = '/api.php';
 const tokenRequest = '/api_token.php?command=request';
@@ -45,10 +43,11 @@ let STORE = {
   questions: QUESTIONS,
   currentIndex: null,
   answers: [],
-  totalCorrect: 0
+  totalCorrect: 0,
+  CATEGORY: [],
 };
 
-let CATEGORY = [];
+//let CATEGORY = [];
 
 function render(){
   //shows start page
@@ -84,6 +83,32 @@ function render(){
 function template() { 
   
   const possibleAnswers = QUESTIONS[STORE.currentIndex].answers.map(function(val, index){
+    return `
+      <div><input type='radio' name='answer' value='${val}' data-index-attr='${index}' required />
+        <span class='possible-answers'>
+         ${val}
+        </span>
+      </div>
+    `;
+  }).join('');
+  return `
+      <div class="question-container">
+        <h1 class="question-title">${QUESTIONS[STORE.currentIndex].question}</h1>
+        <form id="answer-options">
+          ${possibleAnswers}
+          <div><input type="submit" value="Next"></div>
+          
+          <div>
+          <p>Current Score:${STORE.totalCorrect} / ${QUESTIONS.length}</p>
+          <p>Question:${STORE.currentIndex+1} / ${QUESTIONS.length}</p> 
+      </div>
+      </form>
+    </div>`; 
+}
+
+function newStartPage() { 
+  
+  const selectCategory = STORE.CATEGORIES.map(function(){
     return `
       <div><input type='radio' name='answer' value='${val}' data-index-attr='${index}' required />
         <span class='possible-answers'>
@@ -222,20 +247,29 @@ function generateFinalResult(){
 }
 
  
-//retreives categori array from API
-function fetchCategory() {
+//retreives category array from API
+function getCategory(){  
   $.getJSON('https://opentdb.com/api_category.php', function(data) {
-    CATEGORY.push(fetchCategory().trivia_categories);
-  //console.log(data);  
+    storeCategory(data);  //callback happening here
   });
 }
+
+//stores category data to array CATEGORIES
+function storeCategory(data){
+  STORE.CATEGORY.push(data.trivia_categories);
+  //console.log(STORE.CATEGORY);
+}
+
+
+let sessionToken;
 //fetch new session token
-function fetchSessionToken (){
+function getToken (){
   $.getJSON(baseURL+tokenRequest, function(data) {
+
   });
 }
 
-
-//function to break URL down for easier calling
-
-    
+//store token to global variable
+function storeToken(data){
+  
+}
