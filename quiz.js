@@ -3,10 +3,11 @@
 $(document).ready(function(){
   getCategory();
   render();
-  handleStartQuiz();
-  handleEvaluateAnswer();
-  continueFromResult ();
-  retakeQuiz();
+
+  //handleStartQuiz();
+  // handleEvaluateAnswer();
+  //continueFromResult ();
+  //retakeQuiz();
 });
 
 //API generating constants
@@ -47,6 +48,7 @@ let STORE = {
   CATEGORY: [],
 };
 
+
 //let CATEGORY = [];
 
 function render(){
@@ -60,6 +62,7 @@ function render(){
   //shows question pages
   } else if (STORE.currentIndex < 5 && (STORE.answers.length-1) !== STORE.currentIndex) {
     $('.start').addClass('hidden');
+    $('.choose-options').addClass('hidden');
     $('.question-page').removeClass('hidden');
     $('.question-result-page').addClass('hidden');
     $('.final-result-page').addClass('hidden');
@@ -79,36 +82,10 @@ function render(){
 }
 
 // Template generators
-// displays question for current page 
+// question template for current page/index 
 function template() { 
   
   const possibleAnswers = QUESTIONS[STORE.currentIndex].answers.map(function(val, index){
-    return `
-      <div><input type='radio' name='answer' value='${val}' data-index-attr='${index}' required />
-        <span class='possible-answers'>
-         ${val}
-        </span>
-      </div>
-    `;
-  }).join('');
-  return `
-      <div class="question-container">
-        <h1 class="question-title">${QUESTIONS[STORE.currentIndex].question}</h1>
-        <form id="answer-options">
-          ${possibleAnswers}
-          <div><input type="submit" value="Next"></div>
-          
-          <div>
-          <p>Current Score:${STORE.totalCorrect} / ${QUESTIONS.length}</p>
-          <p>Question:${STORE.currentIndex+1} / ${QUESTIONS.length}</p> 
-      </div>
-      </form>
-    </div>`; 
-}
-
-function newStartPage() { 
-  
-  const selectCategory = STORE.CATEGORIES.map(function(){
     return `
       <div><input type='radio' name='answer' value='${val}' data-index-attr='${index}' required />
         <span class='possible-answers'>
@@ -205,7 +182,8 @@ function handleStartQuiz() {
     //e.preventDefault();
     STORE.currentIndex=STORE.currentIndex++;
     render();
-    generateNextQuestion();
+    generateCategoryTemplate();
+    
   });
 }
 
@@ -249,27 +227,57 @@ function generateFinalResult(){
  
 //retreives category array from API
 function getCategory(){  
-  $.getJSON('https://opentdb.com/api_category.php', function(data) {
-    storeCategory(data);  //callback happening here
+  $.getJSON('https://opentdb.com/api_category.php', function(data) { //f(d) not called until json retreives data
+    storeCategory(data);        //callback happening here
+    render();
+    // categorySelectTemplate();
+    // generateCategoryTemplate();
+    
   });
 }
 
 //stores category data to array CATEGORIES
 function storeCategory(data){
-  STORE.CATEGORY.push(data.trivia_categories);
-  //console.log(STORE.CATEGORY);
+  STORE.CATEGORY = (data.trivia_categories); 
+
+  //re-render with updated data (after state has been updated)
 }
 
+//create html template to show category options
+function categorySelectTemplate() { 
+  const availableCategories = STORE.CATEGORY.map(function(val){
+    //console.log(val);
+    return `
+    <div>
+      <h1>Test Your Knowledge Quiz</h1>
+    <form>
+      <select id="category">
+        <option value=""></option>
+      </select>
+    </form>
+    </div>
+    `;
+  }).join(''); 
+} 
+//${STORE.CATEGORY.id}  ${availableCategories}
 
-let sessionToken;
-//fetch new session token
-function getToken (){
-  $.getJSON(baseURL+tokenRequest, function(data) {
 
-  });
-}
 
-//store token to global variable
-function storeToken(data){
+function generateCategoryTemplate(){
+  $('.choose-options').html(categorySelectTemplate());
+
   
 }
+
+// let sessionToken;
+// //fetch new session token
+// function getToken (){
+//   $.getJSON(baseURL+tokenRequest, function(data) {
+
+//   });
+// }
+
+// //store token to global variable
+// function storeToken(data){
+  
+// }
