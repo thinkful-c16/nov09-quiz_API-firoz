@@ -4,7 +4,14 @@
 }
 body {
   background-color: lightblue;
+  margin: auto
   
+}
+
+.container {
+  display: block;
+  margin: auto
+  max-width: 900px;
 }
 
 img{

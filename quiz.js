@@ -1,13 +1,21 @@
 'use strict';
 /* global $ */
 $(document).ready(function(){
+  fetchCategory();
+  fetchSessionToken();
   render();
+  //retrieveAPIData()
   handleStartQuiz();
   handleEvaluateAnswer();
   continueFromResult ();
   retakeQuiz();
 });
 
+//API generating URLs
+const baseURL = 'https://opentdb.com';
+const questionPath = '/api.php';
+const tokenRequest = '/api_token.php?command=request';
+  
 // In-memory database of questions
 const QUESTIONS = [
   {question: 'What is the character\'s name in Metroid?',
@@ -40,10 +48,13 @@ let STORE = {
   totalCorrect: 0
 };
 
+let CATEGORY = [];
+
 function render(){
   //shows start page
   if (STORE.currentIndex === null){
     $('.start').removeClass('hidden');
+    $('.choose-options').removeClass('hidden');
     $('.question-page').addClass('hidden');
     $('.question-result-page').addClass('hidden');
     $('.final-result-page').addClass('hidden');
@@ -96,6 +107,7 @@ function template() {
     </div>`; 
 }
 
+//generates html template for results page
 function resultTemplate(){
   if (STORE.answers[STORE.answers.length-1] === QUESTIONS[STORE.currentIndex].correctAnswer) {
     return `
@@ -121,6 +133,7 @@ function resultTemplate(){
   }
 } 
 
+//displays final result page with score 
 function finalResultTempalte(){
   return `
     <h1>You scored ${STORE.totalCorrect} / ${QUESTIONS.length}</h1>
@@ -132,19 +145,21 @@ function finalResultTempalte(){
     </div>`;
 }
 
+//resets STORE so restart quiz button works
 function resetStore(){
   Object.assign(STORE,({currentIndex:null, answers:[], totalCorrect: 0} ));
 }
 
+//restarts quizk and calls resetStore to clear previous answers
 function retakeQuiz (){
   $('.final-result-page').on('click', '.retake-quiz', function(e){
     e.preventDefault();
-    console.log('firing');
     resetStore();
     render();
   });
 }
 
+//function to proceed after viewing correct/incorrect result
 function continueFromResult (){
   $('.question-result-page').on('click', '.continue', function(){
     nextQuestion();
@@ -169,19 +184,18 @@ function handleStartQuiz() {
   });
 }
 
+//generates html template for question
 function generateNextQuestion(){ 
   $('.question-page').html(template());
 }
 
-function generateFinalResult(){ 
-  $('.final-result-page').html(finalResultTempalte());
-}
- 
+//increments and goes to next question index
 function nextQuestion(){
   currentScore();
   STORE.currentIndex++;
 }
 
+//checks if answer is correct and saves it to STORE
 function handleEvaluateAnswer() {
   $('.question-page').on('submit', '#answer-options', function(event){
     event.preventDefault();
@@ -191,9 +205,9 @@ function handleEvaluateAnswer() {
   });
 }
 
+//displays correct/incorrect answer and shows correct answer
 function generateResult(){
   $('.question-result-page').html(resultTemplate());
-  console.log('result template firing');  
 }
 
 function currentScore(){
@@ -202,5 +216,26 @@ function currentScore(){
   }
 }
 
+//generates html on results page with total score
+function generateFinalResult(){ 
+  $('.final-result-page').html(finalResultTempalte());
+}
+
+ 
+//retreives categori array from API
+function fetchCategory() {
+  $.getJSON('https://opentdb.com/api_category.php', function(data) {
+    CATEGORY.push(fetchCategory().trivia_categories);
+  //console.log(data);  
+  });
+}
+//fetch new session token
+function fetchSessionToken (){
+  $.getJSON(baseURL+tokenRequest, function(data) {
+  });
+}
 
 
+//function to break URL down for easier calling
+
+    
