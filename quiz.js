@@ -45,9 +45,6 @@ let STORE = {
   CATEGORY: [],
 };
 
-
-//let CATEGORY = [];
-
 function render(){
   //shows start page
   if (STORE.currentIndex === null){
@@ -79,7 +76,6 @@ function render(){
 // Template generators
 // question template for current page/index 
 function template() { 
-  
   const possibleAnswers = QUESTIONS[STORE.currentIndex].answers.map(function(val, index){
     return `
       <div><input type='radio' name='answer' value='${val}' data-index-attr='${index}' required />
@@ -147,7 +143,7 @@ function resetStore(){
   Object.assign(STORE,({currentIndex:null, answers:[], totalCorrect: 0} ));
 }
 
-//restarts quizk and calls resetStore to clear previous answers
+//restarts quiz and calls resetStore to clear previous answers
 function retakeQuiz (){
   $('.final-result-page').on('click', '.retake-quiz', function(e){
     e.preventDefault();
@@ -178,7 +174,6 @@ function handleStartQuiz() {
     STORE.currentIndex=STORE.currentIndex++;
     render();
     generateCategoryTemplate();
-    
   });
 }
 
@@ -224,30 +219,36 @@ function generateFinalResult(){
 function getCategory(){  
   $.getJSON('https://opentdb.com/api_category.php', function(data) { //function(data) not called until json retreives data
     storeCategory(data);        //callback happening here
+    console.log(data);
   });
 }
+
 //stores category data to array CATEGORIES
 function storeCategory(data){
   STORE.CATEGORY = (data.trivia_categories); 
   generateCategoryTemplate(data);
+  render();
+  
   //re-render with updated data (after state has been updated)
 }
 
+
 //create html template to show category options
 function categorySelectTemplate() { 
+  
   const availableCategories = STORE.CATEGORY.map(function(val){
-    return `
-    <div>
-      <h1>Test Your Knowledge Quiz</h1>
-    <form id="quiz">
-      <select id="category">
-        <option value="${val.id}">${val.name}</option>
-      </select>
-    </form>
-    </div>
-    `;
+    return `<option value="${val.id}">${val.name}</option>`;
   }).join(''); 
   
+  return `<div>
+     <h1>Test Your Trivia Knowledge</h1>
+   <form id="quiz">
+     <select id="categoryList">
+       <option value="categorySelect">Choose Category</option>${availableCategories}
+     </select>
+   </form>
+   </div>
+   `;
 } 
 
 function generateCategoryTemplate(){
