@@ -1,13 +1,10 @@
 'use strict';
 /* global $ */
 $(document).ready(function(){
-  getCategory();
+  getToken();
   render();
-
-  //handleStartQuiz();
-  // handleEvaluateAnswer();
-  //continueFromResult ();
-  //retakeQuiz();
+  handleStartQuiz();
+  
 });
 
 //API generating constants
@@ -55,14 +52,12 @@ function render(){
   //shows start page
   if (STORE.currentIndex === null){
     $('.start').removeClass('hidden');
-    $('.choose-options').removeClass('hidden');
     $('.question-page').addClass('hidden');
     $('.question-result-page').addClass('hidden');
     $('.final-result-page').addClass('hidden');
   //shows question pages
   } else if (STORE.currentIndex < 5 && (STORE.answers.length-1) !== STORE.currentIndex) {
     $('.start').addClass('hidden');
-    $('.choose-options').addClass('hidden');
     $('.question-page').removeClass('hidden');
     $('.question-result-page').addClass('hidden');
     $('.final-result-page').addClass('hidden');
@@ -178,7 +173,7 @@ function continueFromResult (){
 
 //runs render at null state index (start page)
 function handleStartQuiz() {
-  $('#start-button').on('click', function(){
+  $('.choose-options').on('click', '#quiz', function(){
     //e.preventDefault();
     STORE.currentIndex=STORE.currentIndex++;
     render();
@@ -227,57 +222,48 @@ function generateFinalResult(){
  
 //retreives category array from API
 function getCategory(){  
-  $.getJSON('https://opentdb.com/api_category.php', function(data) { //f(d) not called until json retreives data
+  $.getJSON('https://opentdb.com/api_category.php', function(data) { //function(data) not called until json retreives data
     storeCategory(data);        //callback happening here
-    render();
-    // categorySelectTemplate();
-    // generateCategoryTemplate();
-    
   });
 }
-
 //stores category data to array CATEGORIES
 function storeCategory(data){
   STORE.CATEGORY = (data.trivia_categories); 
-
+  generateCategoryTemplate(data);
   //re-render with updated data (after state has been updated)
 }
 
 //create html template to show category options
 function categorySelectTemplate() { 
   const availableCategories = STORE.CATEGORY.map(function(val){
-    //console.log(val);
     return `
     <div>
       <h1>Test Your Knowledge Quiz</h1>
-    <form>
+    <form id="quiz">
       <select id="category">
-        <option value=""></option>
+        <option value="${val.id}">${val.name}</option>
       </select>
     </form>
     </div>
     `;
   }).join(''); 
+  
 } 
-//${STORE.CATEGORY.id}  ${availableCategories}
-
-
 
 function generateCategoryTemplate(){
   $('.choose-options').html(categorySelectTemplate());
-
-  
 }
 
-// let sessionToken;
-// //fetch new session token
-// function getToken (){
-//   $.getJSON(baseURL+tokenRequest, function(data) {
+let sessionToken;
+//fetch new session token
+function getToken (){
+  $.getJSON(baseURL+tokenRequest, function(data) {
+    storeToken(data);
+    //console.log(data);
+  });
+}
 
-//   });
-// }
-
-// //store token to global variable
-// function storeToken(data){
-  
-// }
+//store token to global variable
+function storeToken(data){
+  getCategory();
+}
