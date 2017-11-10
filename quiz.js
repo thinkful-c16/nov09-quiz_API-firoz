@@ -214,12 +214,10 @@ function generateFinalResult(){
   $('.final-result-page').html(finalResultTempalte());
 }
 
- 
 //retreives category array from API
 function getCategory(){  
-  $.getJSON('https://opentdb.com/api_category.php', function(data) { //function(data) not called until json retreives data
-    storeCategory(data);        //callback happening here
-    console.log(data);
+  $.getJSON('https://opentdb.com/api_category.php', function(data) { 
+    storeCategory(data);
   });
 }
 
@@ -228,18 +226,13 @@ function storeCategory(data){
   STORE.CATEGORY = (data.trivia_categories); 
   generateCategoryTemplate(data);
   render();
-  
-  //re-render with updated data (after state has been updated)
 }
-
 
 //create html template to show category options
 function categorySelectTemplate() { 
-  
   const availableCategories = STORE.CATEGORY.map(function(val){
     return `<option value="${val.id}">${val.name}</option>`;
   }).join(''); 
-  
   return `<div>
      <h1>Test Your Trivia Knowledge</h1>
    <form id="quiz">
@@ -260,11 +253,10 @@ let sessionToken;
 function getToken (){
   $.getJSON(baseURL+tokenRequest, function(data) {
     storeToken(data);
-    //console.log(data);
   });
 }
 
 //store token to global variable
-function storeToken(data){
+function storeToken(){
   getCategory();
 }
